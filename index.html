@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A practical workflow guide for converting Figma designs to production-ready React code using Claude Code and Material UI">
+    <title>Figma to Code with Claude Code & Material UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg-secondary);
+        }
+
+        header {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        nav {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .nav-content::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .nav-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .nav-link {
+            white-space: nowrap;
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-secondary);
+            color: var(--primary);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        article {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+        }
+
+        section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 140px;
+        }
+
+        section:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 2rem 0 1rem 0;
+        }
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            box-shadow: var(--shadow);
+        }
+
+        code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        p code, li code {
+            background: var(--bg-secondary);
+            color: var(--primary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.875em;
+            border: 1px solid var(--border);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .callout {
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout-info {
+            background: #eff6ff;
+            border-color: var(--primary);
+        }
+
+        .callout-success {
+            background: #f0fdf4;
+            border-color: var(--success);
+        }
+
+        .callout-warning {
+            background: #fffbeb;
+            border-color: var(--warning);
+        }
+
+        .callout-danger {
+            background: #fef2f2;
+            border-color: var(--danger);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .card h4 {
+            margin-top: 0;
+        }
+
+        footer {
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+            padding: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header-content, .nav-content, main, article {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            article {
+                padding: 1.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Figma to Code with Claude Code & Material UI</h1>
+            <p class="subtitle">A practical workflow for converting Figma designs to production-ready React code</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-content">
+            <a href="#prerequisites" class="nav-link">Prerequisites</a>
+            <a href="#part1" class="nav-link">Install Tools</a>
+            <a href="#part2" class="nav-link">Create Project</a>
+            <a href="#part3" class="nav-link">Configure Claude</a>
+            <a href="#part4" class="nav-link">Connect Figma</a>
+            <a href="#part5" class="nav-link">Workflow</a>
+            <a href="#pitfalls" class="nav-link">Common Issues</a>
+            <a href="#tips" class="nav-link">Best Practices</a>
+            <a href="#reference" class="nav-link">Quick Reference</a>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <section id="prerequisites">
+                <h2>Prerequisites</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Operating System</h4>
+                        <p>macOS 10.15 or later</p>
+                    </div>
+                    <div class="card">
+                        <h4>Subscription</h4>
+                        <p>Claude Pro or Max ($20-100/month)</p>
+                    </div>
+                    <div class="card">
+                        <h4>Design Tool</h4>
+                        <p>Figma Desktop App (not web version!)</p>
+                    </div>
+                    <div class="card">
+                        <h4>Development</h4>
+                        <p>GitHub account & VS Code</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="part1">
+                <h2>Part 1: Install Development Tools</h2>
+
+                <h3>1. Install Homebrew (Mac Package Manager)</h3>
+                <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+                
+                <p><strong>After installation</strong>, run the commands it shows you (usually):</p>
+                <pre><code>echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"</code></pre>
+
+                <p><strong>Verify:</strong></p>
+                <pre><code>brew --version</code></pre>
+
+                <h3>2. Install Node.js</h3>
+                <pre><code>brew install node</code></pre>
+
+                <p><strong>Verify:</strong></p>
+                <pre><code>node --version
+npm --version</code></pre>
+
+                <h3>3. Install GitHub CLI</h3>
+                <pre><code>brew install gh</code></pre>
+
+                <p><strong>Authenticate:</strong></p>
+                <pre><code>gh auth login
+# Choose: GitHub.com → HTTPS → Login with browser</code></pre>
+
+                <h3>4. Install Claude Code CLI</h3>
+                <pre><code>curl -fsSL https://claude.ai/install.sh | bash</code></pre>
+
+                <p><strong>Reload your shell:</strong></p>
+                <pre><code>source ~/.zshrc</code></pre>
+
+                <p><strong>If .zshrc doesn't exist:</strong></p>
+                <pre><code>touch ~/.zshrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc</code></pre>
+
+                <p><strong>Verify:</strong></p>
+                <pre><code>claude --version</code></pre>
+            </section>
+
+            <section id="part2">
+                <h2>Part 2: Create Your React Project</h2>
+
+                <h3>1. Create Project with Vite + TypeScript</h3>
+                <pre><code># Navigate to your projects folder
+cd ~/Documents  # or wherever you keep projects
+
+# Create new React project
+npm create vite@latest my-mui-project -- --template react-ts
+
+# Navigate into it
+cd my-mui-project
+
+# Install dependencies
+npm install</code></pre>
+
+                <h3>2. Install Material UI v6</h3>
+                <pre><code>npm install @mui/material @emotion/react @emotion/styled</code></pre>
+
+                <h3>3. Initialize Git and Push to GitHub</h3>
+                <pre><code># Initialize git
+git init
+git add .
+git commit -m "Initial commit: React + TypeScript + Vite"
+
+# Create repo on GitHub (opens browser)
+gh repo create my-mui-project --public --source=. --remote=origin --push</code></pre>
+
+                <div class="callout callout-info">
+                    <strong>Alternative manual method:</strong>
+                    <ol>
+                        <li>Go to https://github.com/new</li>
+                        <li>Create repository (don't initialize with README)</li>
+                        <li>Run the commands GitHub shows you</li>
+                    </ol>
+                </div>
+
+                <p><strong>Set git identity (recommended):</strong></p>
+                <pre><code>git config --global user.name "Your Name"
+git config --global user.email "your.email@gmail.com"</code></pre>
+            </section>
+
+            <section id="part3">
+                <h2>Part 3: Configure Claude Code</h2>
+
+                <h3>1. Create Project Context File</h3>
+                <pre><code>mkdir .claude
+code .claude/CLAUDE.md  # or: nano .claude/CLAUDE.md</code></pre>
+
+                <h3>2. Add This Content to CLAUDE.md</h3>
+                <pre><code># Project Context
+
+## Tech Stack
+- React 18 with TypeScript
+- Vite for build tooling
+- Material UI v6 (@mui/material)
+
+## Design System Rules
+
+### Component Library
+- ALWAYS use Material UI v6 components from '@mui/material'
+- Never create custom buttons, inputs, cards when MUI has them
+- Check MUI docs first before creating any UI component
+
+### Design Token Mapping (Figma → MUI)
+- Colors: Map to MUI theme palette (primary, secondary, error, etc.)
+- Spacing: Use theme.spacing() - 1 unit = 8px
+- Typography: Map to MUI variants (h1-h6, body1, body2, button)
+- Borders: Use theme.shape.borderRadius
+- Shadows: Use theme.shadows[0-24]
+
+### Component Patterns
+- Buttons: `&lt;Button variant="contained|outlined|text"&gt;`
+- Layout: `&lt;Container&gt;`, `&lt;Grid&gt;`, `&lt;Stack&gt;`, `&lt;Box&gt;`
+- Forms: `&lt;TextField&gt;`, `&lt;Select&gt;`, `&lt;Checkbox&gt;`
+- Cards: `&lt;Card&gt;` with `&lt;CardContent&gt;`, `&lt;CardActions&gt;`
+
+## Code Style
+- Use TypeScript for all files
+- Define Props interfaces above components
+- Use `sx` prop for styling with theme values
+- Never hardcode colors, spacing, or font sizes
+- Always make components responsive
+
+## File Organization
+```
+src/
+  components/     # Reusable UI components
+  pages/         # Page-level components
+  theme.ts       # MUI theme configuration
+```
+
+## Figma Integration
+When converting Figma designs:
+1. Use Figma MCP to fetch actual design data
+2. Extract design tokens first (colors, spacing, typography)
+3. Map Figma components to MUI equivalents
+4. Preserve visual hierarchy and spacing
+5. Use sx prop to match exact measurements
+6. Create theme overrides for custom colors</code></pre>
+
+                <p><strong>Save and exit</strong> (nano: Ctrl+O, Enter, Ctrl+X)</p>
+
+                <h3>3. Install VS Code Extension</h3>
+                <ol>
+                    <li>Open VS Code Extensions (Cmd+Shift+X)</li>
+                    <li>Search for "Claude Code"</li>
+                    <li>Install the official Anthropic extension</li>
+                    <li>Sign in with your Claude Pro/Max account when prompted</li>
+                </ol>
+            </section>
+
+            <section id="part4">
+                <h2>Part 4: Connect Figma MCP Server</h2>
+
+                <h3>1. Enable Figma MCP in Figma Desktop</h3>
+                <ol>
+                    <li><strong>Open Figma Desktop App</strong> (must be desktop, not web!)</li>
+                    <li><strong>Figma menu</strong> (top-left) → <strong>Preferences</strong></li>
+                    <li>Find <strong>"Dev Mode MCP Server"</strong></li>
+                    <li><strong>Enable</strong> it</li>
+                    <li>Note the URL: <code>http://127.0.0.1:3845/mcp</code></li>
+                </ol>
+
+                <div class="callout callout-warning">
+                    <strong>Important:</strong>
+                    Keep Figma Desktop running!
+                </div>
+
+                <h3>2. Add Figma MCP to Claude Code</h3>
+                <pre><code>cd ~/Documents/my-mui-project
+claude mcp add figma-desktop --transport http -- http://127.0.0.1:3845/mcp</code></pre>
+
+                <h3>3. Add MUI MCP Server</h3>
+                <pre><code>claude mcp add mui-mcp -- npx -y @mui/mcp@latest</code></pre>
+
+                <h3>4. Verify MCP Connections</h3>
+                <p>Restart VS Code, then in Claude Code panel, type:</p>
+                <pre><code>/mcp</code></pre>
+
+                <p>Should show:</p>
+                <ul>
+                    <li><span class="badge badge-success">✅ figma-desktop: connected</span></li>
+                    <li><span class="badge badge-success">✅ mui-mcp: connected</span></li>
+                </ul>
+            </section>
+
+            <section id="part5">
+                <h2>Part 5: The Workflow</h2>
+
+                <h3>1. Start Your Dev Server</h3>
+                <p><strong>Open a new terminal tab</strong> (Cmd+T in Terminal, or click + in VS Code terminal):</p>
+                <pre><code>cd ~/Documents/my-mui-project
+npm run dev</code></pre>
+
+                <div class="callout callout-warning">
+                    <strong>Leave this running!</strong> Open new terminal tabs for other commands.
+                </div>
+
+                <h3>2. Create Design in Figma</h3>
+                <ol>
+                    <li>Open Figma Desktop</li>
+                    <li>Create your layout/component</li>
+                    <li>Switch to <strong>Dev Mode</strong> (toggle top-right)</li>
+                    <li>Select the frame you want to convert</li>
+                    <li>Copy the Figma file URL</li>
+                </ol>
+
+                <h3>3. Convert Figma to Code</h3>
+                <p>Open Claude Code in VS Code:</p>
+                <ul>
+                    <li>Click the ⚡ spark icon (top-right when file is open)</li>
+                    <li>Or: Cmd+Shift+P → "Claude Code: Open"</li>
+                </ul>
+
+                <p><strong>Example prompt:</strong></p>
+                <pre><code>I have a Figma design at [paste URL].
+
+Please:
+1. Fetch the design from Figma using the MCP
+2. Extract all design tokens (colors, spacing, typography)
+3. Convert it to React using Material UI v6 components
+4. Match the visual design exactly
+5. Create proper TypeScript types
+6. Save as src/components/[ComponentName].tsx
+
+Follow all rules in CLAUDE.md.</code></pre>
+
+                <h3>4. Review and Accept Changes</h3>
+                <ul>
+                    <li>Claude shows <strong>diffs</strong> for each file change</li>
+                    <li>Click <strong>Accept</strong> for changes you want</li>
+                    <li>Click <strong>Reject</strong> for changes you don't want</li>
+                    <li>Test in browser at <code>http://localhost:5173</code></li>
+                </ul>
+
+                <h3>5. Commit and Push to GitHub</h3>
+                <p><strong>In a new terminal tab</strong> (not the one running dev server):</p>
+                <pre><code># Stage changes
+git add .
+
+# Commit with message
+git commit -m "Add [component name] from Figma design"
+
+# Push to GitHub
+git push</code></pre>
+
+                <p><strong>First push might need:</strong></p>
+                <pre><code>git push -u origin main</code></pre>
+            </section>
+
+            <section id="pitfalls">
+                <h2>Common Pitfalls & Solutions</h2>
+
+                <h3>"command not found: claude"</h3>
+                <div class="callout callout-danger">
+                    <strong>Solution:</strong> Add to PATH
+                    <pre><code>echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc</code></pre>
+                </div>
+
+                <h3>"command not found: npm"</h3>
+                <div class="callout callout-danger">
+                    <strong>Solution:</strong> Install Node.js first
+                    <pre><code>brew install node</code></pre>
+                </div>
+
+                <h3>"command not found: brew"</h3>
+                <div class="callout callout-danger">
+                    <strong>Solution:</strong> Install Homebrew (see Part 1, Step 1)
+                </div>
+
+                <h3>Can't paste GitHub token in terminal</h3>
+                <div class="callout callout-info">
+                    <strong>Solution:</strong> Just paste (Cmd+V) - it won't show anything on screen (security feature), then press Enter
+                </div>
+
+                <h3>Figma MCP won't connect</h3>
+                <div class="callout callout-warning">
+                    <strong>Solutions:</strong>
+                    <ul>
+                        <li>Make sure Figma <strong>Desktop</strong> is running (not just web)</li>
+                        <li>Verify Dev Mode MCP is enabled in Figma Preferences</li>
+                        <li>Restart Figma Desktop</li>
+                        <li>Make sure URL is exactly: <code>http://127.0.0.1:3845/mcp</code></li>
+                    </ul>
+                </div>
+
+                <h3>"site can't be reached" at localhost</h3>
+                <div class="callout callout-danger">
+                    <strong>Solution:</strong> Start the dev server
+                    <pre><code>npm run dev</code></pre>
+                </div>
+
+                <h3>Can't commit - terminal stuck</h3>
+                <div class="callout callout-warning">
+                    <strong>Solution:</strong> You're in the dev server terminal. Open a <strong>new terminal tab</strong> (Cmd+T) for git commands
+                </div>
+
+                <h3>Changes not showing in browser</h3>
+                <div class="callout callout-info">
+                    <strong>Solutions:</strong>
+                    <ul>
+                        <li>Check console for errors (F12)</li>
+                        <li>Make sure dev server is running</li>
+                        <li>Hard refresh: Cmd+Shift+R</li>
+                        <li>Clear browser cache</li>
+                    </ul>
+                </div>
+
+                <h3>"fatal: The current branch main has no upstream branch"</h3>
+                <div class="callout callout-danger">
+                    <strong>Solution:</strong> First push needs:
+                    <pre><code>git push -u origin main</code></pre>
+                </div>
+
+                <h3>Terminal frozen in nano</h3>
+                <div class="callout callout-info">
+                    <strong>Solution:</strong>
+                    <ul>
+                        <li>Save: Control+O, Enter</li>
+                        <li>Exit: Control+X</li>
+                        <li>(Use Control, not Command!)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Tips & Best Practices</h2>
+
+                <h3>Multiple Terminal Tabs</h3>
+                <ul>
+                    <li><strong>Tab 1:</strong> Dev server (<code>npm run dev</code>) - leave running</li>
+                    <li><strong>Tab 2:</strong> Git commands, Claude Code CLI, etc.</li>
+                </ul>
+
+                <h3>VS Code Built-in Git</h3>
+                <p>Instead of terminal, use VS Code:</p>
+                <ol>
+                    <li>Click Source Control icon (left sidebar)</li>
+                    <li>Stage changes with <code>+</code> icon</li>
+                    <li>Type commit message</li>
+                    <li>Click ✓ to commit</li>
+                    <li>Click <code>...</code> → Push</li>
+                </ol>
+
+                <h3>Reference Files in Claude</h3>
+                <ul>
+                    <li>Type <code>@filename</code> to give Claude context</li>
+                    <li>Select code in editor - Claude sees it automatically</li>
+                </ul>
+
+                <h3>Always Review Diffs</h3>
+                <ul>
+                    <li>Don't blindly accept all changes</li>
+                    <li>Check that MUI components are used correctly</li>
+                    <li>Verify TypeScript types are proper</li>
+                </ul>
+
+                <h3>Iterative Refinement</h3>
+                <p>If Claude's output isn't perfect:</p>
+                <pre><code>The spacing is too tight. Use theme.spacing(3) instead of 2.
+The button should be variant="contained" not "outlined".</code></pre>
+
+                <h3>Keep Figma Organized</h3>
+                <ul>
+                    <li>Name your frames clearly</li>
+                    <li>Use Figma variables for colors</li>
+                    <li>Document your design tokens</li>
+                    <li>Keep components organized</li>
+                </ul>
+            </section>
+
+            <section id="reference">
+                <h2>Quick Reference Commands</h2>
+                <pre><code># Start dev server
+npm run dev
+
+# New terminal tab
+Cmd + T
+
+# Stage all changes
+git add .
+
+# Commit
+git commit -m "message"
+
+# Push
+git push
+
+# Check MCP status (in Claude Code)
+/mcp
+
+# Open file in VS Code
+code path/to/file
+
+# Kill process on port
+lsof -ti:5173 | xargs kill -9</code></pre>
+            </section>
+
+            <section id="next-steps">
+                <h2>Next Steps</h2>
+                <ol>
+                    <li><strong>Create a real design</strong> in Figma following your design system</li>
+                    <li><strong>Convert it</strong> using the workflow above</li>
+                    <li><strong>Refine</strong> by giving Claude feedback</li>
+                    <li><strong>Build out</strong> more components iteratively</li>
+                    <li><strong>Share</strong> your progress on GitHub!</li>
+                </ol>
+            </section>
+
+            <section id="hosting">
+                <h2>Hosting This Guide</h2>
+                <p>To share this guide, you can:</p>
+
+                <h4>1. Create a GitHub Gist:</h4>
+                <ul>
+                    <li>Go to https://gist.github.com</li>
+                    <li>Paste this content</li>
+                    <li>Name it: <code>figma-claude-mui-workflow.md</code></li>
+                    <li>Click "Create public gist"</li>
+                    <li>Share the URL</li>
+                </ul>
+
+                <h4>2. Add to your project README:</h4>
+                <pre><code>cp this-guide.md ~/Documents/my-mui-project/WORKFLOW.md
+git add WORKFLOW.md
+git commit -m "Add workflow documentation"
+git push</code></pre>
+
+                <h4>3. Host on Notion/Confluence:</h4>
+                <ul>
+                    <li>Copy/paste the content</li>
+                    <li>Share the page link</li>
+                </ul>
+
+                <h4>4. Personal website/blog:</h4>
+                <ul>
+                    <li>Convert to HTML</li>
+                    <li>Host on GitHub Pages, Netlify, or Vercel</li>
+                </ul>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://mui.com/material-ui/" target="_blank">Material UI Docs</a>
+                <a href="https://code.claude.com/docs" target="_blank">Claude Code Docs</a>
+                <a href="https://modelcontextprotocol.io/" target="_blank">MCP Documentation</a>
+                <a href="https://vitejs.dev/" target="_blank">Vite Docs</a>
+                <a href="https://cli.github.com/" target="_blank">GitHub CLI Docs</a>
+            </div>
+            <p>
+                <strong>Created:</strong> December 2025 | 
+                <strong>Last Updated:</strong> December 2025 | 
+                <strong>Version:</strong> 1.0
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
